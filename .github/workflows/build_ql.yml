@@ -33,9 +33,9 @@ jobs:
     - name: echo platform info
       shell: bash -l {0}
       run: |
-        echo $(uname -a)
-        echo $(docker images)
-        echo $(docker ps -as)
+        uname -a
+        docker images
+        docker ps -as
 
   change_detect:
     name: "Detect code changes"
