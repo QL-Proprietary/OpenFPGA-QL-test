@@ -29,8 +29,9 @@ jobs:
   platform_info:
     name: "Platform information"
     runs-on: [self-hosted, vbox-centos9]
+    shell: bash -l {0}
     steps:
-      - name: echo platform info
+    - name: echo platform info
       run: |
         echo $(uname -a)
         echo $(docker images)
