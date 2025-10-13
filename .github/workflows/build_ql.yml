@@ -30,7 +30,7 @@ jobs:
     name: "Detect code changes"
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:24.04
+      image: ubuntu:openfpga
     outputs:
       # this is output as string, see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idoutputs
       source_modified: ${{ steps.changes.outputs.status_code == '1' }}
@@ -77,7 +77,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -156,7 +156,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -265,7 +265,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     strategy:
       fail-fast: false
       matrix:
@@ -319,7 +319,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     strategy:
       fail-fast: false
       matrix:
@@ -373,7 +373,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     strategy:
       fail-fast: false
       matrix:
@@ -426,7 +426,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -473,7 +473,7 @@ jobs:
     name: Build docker image for distribution
     runs-on: [self-hosted, vbox-centos9]
     container:
-      image: ubuntu:22.04
+      image: ubuntu:openfpga
     needs: [linux_build, change_detect]
     steps:
       - name: Cancel previous
