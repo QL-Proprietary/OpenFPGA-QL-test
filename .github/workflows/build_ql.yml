@@ -26,6 +26,16 @@ env:
 
 # Multiple job to tests
 jobs:
+  platform_info:
+    name: "Platform information"
+    runs-on: [self-hosted, vbox-centos9]
+    steps:
+      - name: echo platform info
+      - run: |
+        echo $(uname -a)
+        echo $(docker images)
+        echo $(docker ps -as)
+
   change_detect:
     name: "Detect code changes"
     runs-on: [self-hosted, vbox-centos9]
