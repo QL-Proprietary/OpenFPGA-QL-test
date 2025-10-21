@@ -67,26 +67,8 @@ jobs:
       - name: Check for source code changes
         id: changes
         run: |
-          uname -a
-          pwd
-          ls -la
-          git diff origin/master HEAD --name-status -- . ':!openfpga_flow' ':!docs'
-          if git diff origin/master HEAD --name-status --exit-code -- . ':!openfpga_flow' ':!docs'; then
-            echo "::set-output name=status_code::0"
-          else
-            echo "::set-output name=status_code::$?"
-          fi
-          if [[ (${GITHUB_REF} == 'refs/heads/master') || -n "${IGNORE_DOCKER_TEST}"  ]]; then
-            echo "Current branch is master forcing source_modified"
-            echo "::set-output name=status_code::1"
-          fi
-          if [[ -n "${DOCKER_REPO}" ]]; then
-            echo "name=docker_repo::$REPO_OWNER"
-            echo "::set-output name=docker_repo::$REPO_OWNER"
-          else
-            echo "name=docker_repo::lnis-uofu"
-            echo "::set-output name=docker_repo::lnis-uofu"
-          fi
+          echo "::set-output name=status_code::1"
+          echo "::set-output name=docker_repo::$REPO_OWNER"
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
   # Test the compilation compatibility
