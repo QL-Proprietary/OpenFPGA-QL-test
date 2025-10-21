@@ -67,6 +67,9 @@ jobs:
       - name: Check for source code changes
         id: changes
         run: |
+          uname -a
+          pwd
+          ls -la
           git diff origin/master HEAD --name-status -- . ':!openfpga_flow' ':!docs'
           if git diff origin/master HEAD --name-status --exit-code -- . ':!openfpga_flow' ':!docs'; then
             echo "::set-output name=status_code::0"
