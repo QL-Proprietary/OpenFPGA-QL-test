@@ -508,7 +508,6 @@ jobs:
   linux_regression_tests:
     name: linux_regression_tests
     runs-on: [self-hosted, vbox-centos9]
-    container: ubuntu
     needs: [linux_build, change_detect]
     container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-env
     strategy:
@@ -566,7 +565,6 @@ jobs:
     if: ${{ !fromJSON(needs.change_detect.outputs.source_modified) }}
     name: docker_regression_tests
     runs-on: [self-hosted, vbox-centos9]
-    container: ubuntu
     container: 
       image: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-master:latest
       options: --user root --workdir /home/openfpga_user
