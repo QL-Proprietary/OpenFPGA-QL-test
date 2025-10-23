@@ -29,7 +29,6 @@ jobs:
   change_detect:
     name: "Detect code changes"
     runs-on: [self-hosted, vbox-centos9]
-    container: ubuntu
     outputs:
       # this is output as string, see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idoutputs
       source_modified: ${{ steps.changes.outputs.status_code == '1' }}
@@ -42,11 +41,6 @@ jobs:
         with:
           access_token: ${{ github.token }}
           
-      - name: Install dependencies
-        run: |
-          apt-get update
-          apt-get install -y git
-
       - name: Checkout OpenFPGA repo
         uses: actions/checkout@v4
         with:
