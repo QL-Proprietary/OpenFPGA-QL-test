@@ -1,4 +1,4 @@
-name: Regression Test 
+name: CentOS9 Linux Build Test 
 
 # Run CI on push, PR, and weekly.
 on:
@@ -26,22 +26,10 @@ env:
 
 # Multiple job to tests
 jobs:
-  platform_info:
-    name: "Platform information"
-    runs-on: [self-hosted, vbox-centos9]
-    steps:
-    - name: echo platform info
-      shell: bash -l {0}
-      run: |
-        uname -a
-        docker images
-        docker ps -as
-
   change_detect:
     name: "Detect code changes"
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     outputs:
       # this is output as string, see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idoutputs
       source_modified: ${{ steps.changes.outputs.status_code == '1' }}
@@ -67,8 +55,23 @@ jobs:
       - name: Check for source code changes
         id: changes
         run: |
-          echo "::set-output name=status_code::1"
-          echo "::set-output name=docker_repo::$REPO_OWNER"
+          git diff origin/master HEAD --name-status -- . ':!openfpga_flow' ':!docs'
+          if git diff origin/master HEAD --name-status --exit-code -- . ':!openfpga_flow' ':!docs'; then
+            echo "::set-output name=status_code::0"
+          else
+            echo "::set-output name=status_code::$?"
+          fi
+          if [[ (${GITHUB_REF} == 'refs/heads/master') || -n "${IGNORE_DOCKER_TEST}"  ]]; then
+            echo "Current branch is master forcing source_modified"
+            echo "::set-output name=status_code::1"
+          fi
+          if [[ -n "${DOCKER_REPO}" ]]; then
+            echo "name=docker_repo::$REPO_OWNER"
+            echo "::set-output name=docker_repo::$REPO_OWNER"
+          else
+            echo "name=docker_repo::lnis-uofu"
+            echo "::set-output name=docker_repo::lnis-uofu"
+          fi
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
   # Test the compilation compatibility
@@ -77,8 +80,7 @@ jobs:
     if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -156,8 +158,7 @@ jobs:
     if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -220,8 +221,8 @@ jobs:
           make all BUILD_TYPE=$BUILD_TYPE CMAKE_FLAGS="${{ matrix.config.cmake_flags }}"
 
   centos_support:
-    needs: change_detect
-    if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
+    #needs: change_detect
+    #if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
     container: ${{ matrix.config.docker_image }}
@@ -265,8 +266,7 @@ jobs:
     if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     strategy:
       fail-fast: false
       matrix:
@@ -319,8 +319,7 @@ jobs:
     #if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }} && ${{ github.repository_owner == 'lnis-uofu' }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     strategy:
       fail-fast: false
       matrix:
@@ -373,8 +372,7 @@ jobs:
     if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     strategy:
       fail-fast: false
       matrix:
@@ -426,8 +424,7 @@ jobs:
     if: ${{ fromJSON(needs.change_detect.outputs.source_modified) }}
     name: ${{ matrix.config.name }}
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     # Note: dependencies are installed in the container. See details about dependency list in docker/Dockerfile.master
     # Comment the line out when base image is built again
     #container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-build-${{ matrix.config.cc}}
@@ -473,8 +470,7 @@ jobs:
   docker_distribution:
     name: Build docker image for distribution
     runs-on: [self-hosted, vbox-centos9]
-    container:
-      image: ubuntu
+    container: ubuntu
     needs: [linux_build, change_detect]
     steps:
       - name: Cancel previous
@@ -512,6 +508,7 @@ jobs:
   linux_regression_tests:
     name: linux_regression_tests
     runs-on: [self-hosted, vbox-centos9]
+    container: ubuntu
     needs: [linux_build, change_detect]
     container: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-env
     strategy:
@@ -569,6 +566,7 @@ jobs:
     if: ${{ !fromJSON(needs.change_detect.outputs.source_modified) }}
     name: docker_regression_tests
     runs-on: [self-hosted, vbox-centos9]
+    container: ubuntu
     container: 
       image: ghcr.io/${{ needs.change_detect.outputs.docker_repo }}/openfpga-master:latest
       options: --user root --workdir /home/openfpga_user
